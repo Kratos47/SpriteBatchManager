@@ -8,10 +8,11 @@ import { Image } from "./Image/Image.js"
 import { GameSpriteMan } from "./Sprite/GameSpriteManager.js";
 import { GameSprite } from "./Sprite/GameSprite.js";
 
-import { SpriteMan } from "./Sprite/SpriteManager.js";
-import { Sprite } from "./Sprite/Sprite.js";
+import { BoxSpriteMan } from "./Sprite/BoxSpriteManager.js";
+import { BoxSprite } from "./Sprite/BoxSprite.js";
 
 import { setActiveScene } from './Globals.js';
+import { denormalizeToHex } from "../Globals.js";
 
 export default class Game extends Phaser.Scene {
 
@@ -35,9 +36,9 @@ export default class Game extends Phaser.Scene {
 
         ImageMan.Create(5, 2);
 
-        //SpriteMan.Create(4, 2);
-
         GameSpriteMan.Create(4, 2);
+
+        BoxSpriteMan.Create(3, 1);
 
         this.redSpeed = 2.0;
 
@@ -48,6 +49,7 @@ export default class Game extends Phaser.Scene {
         this.blue = 0.0;
         this.red = 0.0;
         this.pStitch_Speed = 0.1;
+        this.count3 = 0;
     }
 
     preload() {
@@ -63,7 +65,7 @@ export default class Game extends Phaser.Scene {
     }
 
     create() {
-        
+
 
         ImageMan.Add(Image.Name.Alien_Crab, Texture.Name.Aliens, 118, 27, 95, 70);
 
@@ -81,10 +83,32 @@ export default class Game extends Phaser.Scene {
         ImageMan.Add(Image.Name.Stitch, Texture.Name.Stitch, 0, 0, 300, 410);
         this.pStitch = GameSpriteMan.Add(GameSprite.Name.Stitch, Image.Name.Stitch, Texture.Name.Stitch, 400, 300, 0.5, 0.5);
 
+        this.color = { r: 1, g: 1, b: 1 };
+
+        BoxSpriteMan.Add(BoxSprite.Name.Box1, 550.0, 300.0, 150.0, 150.0, this.color);
+
         console.log("===== Manager Tests End =====");
     }
 
     update(time, delta) {
+
+        // Add your update below this line: ----------------------------
+        //--------------------------------------------------------
+        // Boxes
+        //--------------------------------------------------------
+        this.count3++;
+        this.pBoxSprite1 = BoxSpriteMan.Find(BoxSprite.Name.Box1);
+        if (this.count3 == 100) {
+            this.pBoxSprite1.SwapColor({ r: 1, g: 0, b: 0});
+        }
+        else if (this.count3 == 200) {
+            this.pBoxSprite1.SwapColor({ r: 0, g: 1, b: 0});
+        }
+        else if (this.count3 == 300) {
+            this.pBoxSprite1.SwapColor({ r: 0, g: 0, b: 1});
+            this.count3 = 0;
+        }
+        this.pBoxSprite1.Update();
 
         //console.log("===== Game Update =====");
         // Game loop placeholder

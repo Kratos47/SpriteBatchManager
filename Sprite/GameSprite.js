@@ -1,6 +1,4 @@
 import { SpriteBase } from "./SpriteBase.js";
-import { ImageMan } from "../Image/ImageManager.js";
-import { Image } from "../Image/Image.js";
 import { activeScene } from "../Globals.js";
 import { Texture } from "../Texture/Texture.js";
 

@@ -1,10 +1,11 @@
-// SpriteMan.js
+// BoxSpriteMan.js
 
-import { Manager } from "../Manager/Manager.js";
-import { Sprite } from "../Sprite/Sprite.js";
-import { ImageMan } from "../Image/ImageManager.js";
+import { Manager } from "../Manager/Manager.js"
+import { BoxSprite } from "./BoxSprite.js"
 
-export class SpriteMan extends Manager {
+
+export class BoxSpriteMan extends Manager {
+
   // ------------------------------------------------------------
   // Constructor
   // ------------------------------------------------------------
@@ -12,7 +13,8 @@ export class SpriteMan extends Manager {
     super(); // base()
 
     this.baseInitialize(reserveNum, reserveGrow);
-    this.poNodeCompare = new Sprite();
+
+    this.poNodeCompare = new BoxSprite();
   }
 
   // ------------------------------------------------------------
@@ -21,43 +23,42 @@ export class SpriteMan extends Manager {
   static Create(reserveNum = 3, reserveGrow = 1) {
     console.assert(reserveNum > 0);
     console.assert(reserveGrow > 0);
-    console.assert(SpriteMan.pInstance === null);
+    console.assert(BoxSpriteMan.pInstance === null);
 
-    if (SpriteMan.pInstance === null) {
-      SpriteMan.pInstance = new SpriteMan(reserveNum, reserveGrow);
+    if (BoxSpriteMan.pInstance === null) {
+      BoxSpriteMan.pInstance = new BoxSpriteMan(reserveNum, reserveGrow);
     }
   }
 
   static Destroy() {
-    const pMan = SpriteMan.privGetInstance();
+    const pMan = BoxSpriteMan.privGetInstance();
     console.assert(pMan !== null);
     // intentionally empty (same as C#)
   }
 
-  static Add(name, imageName, textureName, x, y, width, height) {
-    const pMan = SpriteMan.privGetInstance();
+  static Add(name, x, y, width, height, pLineColor = null,lineWidth = 2, Alpha = 1) {
+    const pMan = BoxSpriteMan.privGetInstance();
     console.assert(pMan !== null);
 
     const pNode = pMan.baseAdd();
     console.assert(pNode !== null);
 
-    const pImage = ImageMan.Find(imageName);
-    console.assert(pImage !== null);
+    pNode.Set(name, x, y, width, height, pLineColor, lineWidth, Alpha);
 
-    pNode.Set(name, pImage, textureName, x, y, width, height);
     return pNode;
   }
 
   static Find(name) {
-    const pMan = SpriteMan.privGetInstance();
+    const pMan = BoxSpriteMan.privGetInstance();
     console.assert(pMan !== null);
 
     pMan.poNodeCompare.name = name;
+
     return pMan.baseFind(pMan.poNodeCompare);
   }
 
   static Remove(pNode) {
-    const pMan = SpriteMan.privGetInstance();
+    const pMan = BoxSpriteMan.privGetInstance();
     console.assert(pMan !== null);
     console.assert(pNode !== null);
 
@@ -65,7 +66,7 @@ export class SpriteMan extends Manager {
   }
 
   static Dump() {
-    const pMan = SpriteMan.privGetInstance();
+    const pMan = BoxSpriteMan.privGetInstance();
     console.assert(pMan !== null);
 
     pMan.baseDump();
@@ -75,7 +76,7 @@ export class SpriteMan extends Manager {
   // Overrides
   // ------------------------------------------------------------
   derivedCreateNode() {
-    const pNode = new Sprite();
+    const pNode = new BoxSprite();
     console.assert(pNode !== null);
     return pNode;
   }
@@ -101,8 +102,8 @@ export class SpriteMan extends Manager {
   // Private
   // ------------------------------------------------------------
   static privGetInstance() {
-    console.assert(SpriteMan.pInstance !== null);
-    return SpriteMan.pInstance;
+    console.assert(BoxSpriteMan.pInstance !== null);
+    return BoxSpriteMan.pInstance;
   }
 
   // ------------------------------------------------------------
