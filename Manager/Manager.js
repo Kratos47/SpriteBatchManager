@@ -2,7 +2,7 @@
 
 export class Manager {
   // ------------------------------------------------------------
-  // Constructor (protected in C#)
+  // Constructor
   // ------------------------------------------------------------
   constructor() {
     this.mDeltaGrow = 0;
@@ -30,27 +30,22 @@ export class Manager {
   }
 
   // ------------------------------------------------------------
-  // Base methods (called by derived managers)
+  // Base methods
   // ------------------------------------------------------------
   baseAdd() {
-    // Are there any nodes on the Reserve list?
     if (this.poReserve === null) {
       this.privFillReservedPool(this.mDeltaGrow);
     }
 
-    // Always take from the reserve list
-    const pLink = Manager.privPullFromFront({ head: this });
+    const pLink = Manager.privPullFromFront(this);
     console.assert(pLink !== null);
 
-    // Wash it
     this.derivedWash(pLink);
 
-    // Update stats
     this.mNumActive++;
     this.mNumReserved--;
 
-    // Copy to active
-    Manager.privAddToFront({ head: this, list: "poActive" }, pLink);
+    Manager.privAddToFront(this, "poActive", pLink);
 
     return pLink;
   }
@@ -60,22 +55,23 @@ export class Manager {
 
     while (pLink !== null) {
       if (this.derivedCompare(pLink, pNodeTarget)) {
-        break;
+        return pLink;
       }
+
       pLink = pLink.pNext;
     }
 
-    return pLink;
+    return null;
   }
 
   baseRemove(pNode) {
     console.assert(pNode !== null);
 
-    Manager.privRemoveNode({ head: this }, pNode);
+    Manager.privRemoveNode(this, pNode);
 
     this.derivedWash(pNode);
 
-    Manager.privAddToFront({ head: this, list: "poReserve" }, pNode);
+    Manager.privAddToFront(this, "poReserve", pNode);
 
     this.mNumActive--;
     this.mNumReserved++;
@@ -92,27 +88,10 @@ export class Manager {
     console.log(`         mNumActive: ${this.mNumActive}`);
     console.log("");
 
-    let pNode = null;
+    let pNode = this.poActive;
 
-    if (this.poActive === null) {
-      console.log("    Active Head: null");
-    } else {
-      pNode = this.poActive;
-      console.log(`    Active Head: (${pNode.constructor.name})`);
-    }
+    console.log("   ------ Active List -----------");
 
-    if (this.poReserve === null) {
-      console.log("   Reserve Head: null");
-    } else {
-      pNode = this.poReserve;
-      console.log(`   Reserve Head: (${pNode.constructor.name})`);
-    }
-
-    console.log("");
-    console.log("   ------ Active List: -----------");
-    console.log("");
-
-    pNode = this.poActive;
     let i = 0;
     while (pNode !== null) {
       console.log(`   ${i}: -------------`);
@@ -122,11 +101,11 @@ export class Manager {
     }
 
     console.log("");
-    console.log("   ------ Reserve List: ----------");
-    console.log("");
+    console.log("   ------ Reserve List ----------");
 
     pNode = this.poReserve;
     i = 0;
+
     while (pNode !== null) {
       console.log(`   ${i}: -------------`);
       this.derivedDumpNode(pNode);
@@ -136,11 +115,10 @@ export class Manager {
 
     console.log("");
     console.log("   ****** Manager End ******************");
-    console.log("");
   }
 
   // ------------------------------------------------------------
-  // Abstract methods (must be overridden)
+  // Abstract methods
   // ------------------------------------------------------------
   derivedCreateNode() {
     throw new Error("derivedCreateNode() must be implemented");
@@ -159,7 +137,7 @@ export class Manager {
   }
 
   // ------------------------------------------------------------
-  // Private helpers
+  // Private
   // ------------------------------------------------------------
   privFillReservedPool(count) {
     console.assert(count >= 1);
@@ -171,69 +149,66 @@ export class Manager {
       const pNode = this.derivedCreateNode();
       console.assert(pNode !== null);
 
-      Manager.privAddToFront({ head: this, list: "poReserve" }, pNode);
+      Manager.privAddToFront(this, "poReserve", pNode);
     }
   }
 
   // ------------------------------------------------------------
-  // Static helpers (mirror C# exactly)
+  // Static Helpers
   // ------------------------------------------------------------
-  static privAddToFront(refs, pNode) {
+
+  static privAddToFront(man, listName, pNode) {
     console.assert(pNode !== null);
 
-    const listName = refs.list;
-    let pHead = refs.head[listName];
+    let pHead = man[listName];
+
+    // ALWAYS reset pointers first (important bug fix)
+    pNode.pNext = null;
+    pNode.pPrev = null;
 
     if (pHead === null) {
-      refs.head[listName] = pNode;
-      pNode.pNext = null;
-      pNode.pPrev = null;
+      man[listName] = pNode;
     } else {
-      pNode.pPrev = null;
       pNode.pNext = pHead;
       pHead.pPrev = pNode;
-      refs.head[listName] = pNode;
+      man[listName] = pNode;
     }
-
-    console.assert(refs.head[listName] !== null);
   }
 
-  static privPullFromFront(refs) {
-    let pHead = refs.head.poReserve;
+  static privPullFromFront(man) {
+    let pHead = man.poReserve;
     console.assert(pHead !== null);
 
     const pNode = pHead;
 
-    refs.head.poReserve = pHead.pNext;
-    if (refs.head.poReserve !== null) {
-      refs.head.poReserve.pPrev = null;
+    man.poReserve = pHead.pNext;
+
+    if (man.poReserve !== null) {
+      man.poReserve.pPrev = null;
     }
 
-    pNode.clear();
-
-    console.assert(pNode.pNext === null);
-    console.assert(pNode.pPrev === null);
+    // reset node pointers
+    pNode.pNext = null;
+    pNode.pPrev = null;
 
     return pNode;
   }
 
-  static privRemoveNode(refs, pNode) {
-    console.assert(refs.head.poActive !== null);
+  static privRemoveNode(man, pNode) {
+    console.assert(man.poActive !== null);
     console.assert(pNode !== null);
 
     if (pNode.pPrev !== null) {
       pNode.pPrev.pNext = pNode.pNext;
     } else {
-      refs.head.poActive = pNode.pNext;
+      man.poActive = pNode.pNext;
     }
 
     if (pNode.pNext !== null) {
       pNode.pNext.pPrev = pNode.pPrev;
     }
 
-    pNode.clear();
-
-    console.assert(pNode.pNext === null);
-    console.assert(pNode.pPrev === null);
+    pNode.pNext = null;
+    pNode.pPrev = null;
   }
 }
