@@ -24,7 +24,7 @@ export class SpriteBase extends DLink {
     throw new Error("Update() must be overridden in derived class");
   }
 
-//   Render() {
-//     throw new Error("Render() must be overridden in derived class");
-//   }
+   Render() {
+     throw new Error("Render() must be overridden in derived class");
+   }
 }

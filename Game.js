@@ -14,6 +14,9 @@ import { BoxSprite } from "./Sprite/BoxSprite.js";
 import { setActiveScene } from './Globals.js';
 import { denormalizeToHex } from "../Globals.js";
 
+import { SpriteBatchMan } from "./SpriteBatch/SpriteBatchMan.js";
+import { SpriteBatch } from "./SpriteBatch/SpriteBatch.js";
+
 export default class Game extends Phaser.Scene {
 
     constructor() {
@@ -39,6 +42,8 @@ export default class Game extends Phaser.Scene {
         GameSpriteMan.Create(4, 2);
 
         BoxSpriteMan.Create(3, 1);
+
+        SpriteBatchMan.Create(3, 1);
 
         this.redSpeed = 2.0;
 
@@ -66,14 +71,13 @@ export default class Game extends Phaser.Scene {
 
     create() {
 
-
         ImageMan.Add(Image.Name.Alien_Crab, Texture.Name.Aliens, 118, 27, 95, 70);
 
         this.pAlien_Crab = GameSpriteMan.Add(GameSprite.Name.Alien_Crab, Image.Name.Alien_Crab, Texture.Name.Aliens, 200, 200, 1, 1);
 
         ImageMan.Add(Image.Name.RedBird, Texture.Name.Birds, 47, 41, 48, 46);
 
-        this.pRedBird = GameSpriteMan.Add(GameSprite.Name.RedBird, Image.Name.RedBird, Texture.Name.Birds, 50, 500, 1, 1);
+        this.pRedBird = GameSpriteMan.Add(GameSprite.Name.RedBird, Image.Name.RedBird, Texture.Name.Birds, 150, 300, 1, 1);
 
         ImageMan.Add(Image.Name.Alien_Octopus, Texture.Name.Aliens, 554, 26, 104, 70);
 
@@ -81,11 +85,36 @@ export default class Game extends Phaser.Scene {
             650, 150, 1, 1);
 
         ImageMan.Add(Image.Name.Stitch, Texture.Name.Stitch, 0, 0, 300, 410);
-        this.pStitch = GameSpriteMan.Add(GameSprite.Name.Stitch, Image.Name.Stitch, Texture.Name.Stitch, 400, 300, 0.5, 0.5);
+        this.pStitch = GameSpriteMan.Add(GameSprite.Name.Stitch, Image.Name.Stitch, Texture.Name.Stitch, 200, 250, 0.5, 0.5);
 
         this.color = { r: 1, g: 1, b: 1 };
 
-        BoxSpriteMan.Add(BoxSprite.Name.Box1, 550.0, 300.0, 150.0, 150.0, this.color);
+        BoxSpriteMan.Add(BoxSprite.Name.Box1, 200.0, 300.0, 150.0, 150.0, this.color);
+
+
+
+        //Sprite Batches
+        this.pSB_Aliens = SpriteBatchMan.Add(SpriteBatch.Name.Aliens, 4);
+        this.pSB_Boxes = SpriteBatchMan.Add(SpriteBatch.Name.Boxes, 3);
+        this.pSB_AngryBirds = SpriteBatchMan.Add(SpriteBatch.Name.AngryBirds, 2);
+        this.pSB_Stitch = SpriteBatchMan.Add(SpriteBatch.Name.Stitch, 1);
+
+
+        this.pSB_AngryBirds.Attach(GameSprite.Name.RedBird);
+
+        this.pSB_Boxes.Attach(BoxSprite.Name.Box1);
+
+        this.pSB_Aliens.Attach(GameSprite.Name.Alien_Crab);
+
+        this.pSB_Stitch.Attach(GameSprite.Name.Stitch);
+
+
+        // 2. Add the listener to call your custom Draw()
+        // This tells Phaser: "Every time you finish updating, call my manual Draw"
+        this.events.on('postupdate', () => {
+            SpriteBatchMan.Draw();
+        });
+
 
         console.log("===== Manager Tests End =====");
     }
@@ -99,13 +128,13 @@ export default class Game extends Phaser.Scene {
         this.count3++;
         this.pBoxSprite1 = BoxSpriteMan.Find(BoxSprite.Name.Box1);
         if (this.count3 == 100) {
-            this.pBoxSprite1.SwapColor({ r: 1, g: 0, b: 0});
+            this.pBoxSprite1.SwapColor({ r: 1, g: 0, b: 0 });
         }
         else if (this.count3 == 200) {
-            this.pBoxSprite1.SwapColor({ r: 0, g: 1, b: 0});
+            this.pBoxSprite1.SwapColor({ r: 0, g: 1, b: 0 });
         }
         else if (this.count3 == 300) {
-            this.pBoxSprite1.SwapColor({ r: 0, g: 0, b: 1});
+            this.pBoxSprite1.SwapColor({ r: 0, g: 0, b: 1 });
             this.count3 = 0;
         }
         this.pBoxSprite1.Update();

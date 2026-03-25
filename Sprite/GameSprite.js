@@ -90,7 +90,7 @@ export class GameSprite extends SpriteBase {
         this.poSprite.setPosition(x, y);
         this.poSprite.setScale(width, height);
         this.poSprite.setTexture(textureName, pImage.name);
-        activeScene.add.existing(this.poSprite); // Adds it to the display list
+        //activeScene.add.existing(this.poSprite); // Adds it to the display list
 
         console.assert(this.poSprite !== null);
 
@@ -155,16 +155,30 @@ export class GameSprite extends SpriteBase {
         this.poSprite.update();
     }
 
-    //   Render() {
-    //     this.poAzulSprite.Render();
-    //   }
+     Render() {
+        const renderer = activeScene.sys.renderer;
+        const camera = activeScene.cameras.main;
 
-    // ------------------------------------------------------------
-    // Swaps
-    // ------------------------------------------------------------
-    SwapColor(myColor) {
-        this.poSprite.setTint(myColor);
+        // 1. Access the default pipeline
+        const pipeline = renderer.pipelines.get('MultiPipeline');
+
+        // 2. Pass the sprite, the camera, and an empty parent matrix
+        // The 3rd argument is often where 'copyFrom' fails if it's null/undefined
+        pipeline.batchSprite(
+            this.poSprite,
+            camera,
+            this.poSprite.parentContainer ? this.poSprite.parentContainer.getWorldTransformMatrix() : null
+        );
     }
+
+
+
+// ------------------------------------------------------------
+// Swaps
+// ------------------------------------------------------------
+SwapColor(myColor) {
+    this.poSprite.setTint(myColor);
+}
 
     //   SwapTextureRect(rect) {
     //     this.poSprite.SwapTextureRect(rect);

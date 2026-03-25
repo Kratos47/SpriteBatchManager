@@ -67,7 +67,7 @@ export class BoxSprite extends SpriteBase {
 
         // 3. Position and Display
         this.poBoxSprite.setPosition(x, y);
-        activeScene.add.existing(this.poBoxSprite);
+        //activeScene.add.existing(this.poBoxSprite);
 
         // 4. Update internal state
         this.x = x;
@@ -152,6 +152,20 @@ export class BoxSprite extends SpriteBase {
             console.log("              prev:", pTmp.name);
         }
     }
+
+    Render() {
+        // 1. Safety check
+        if (!this.poBoxSprite) return;
+
+        const renderer = activeScene.sys.renderer;
+        const camera = activeScene.cameras.main;
+
+        // 2. Use the Graphics object's internal WebGL render call
+        // This draws the lines/rects you defined in Set() or SwapColor()
+        // It respects the current transformation (x, y, scale, angle)
+        this.poBoxSprite.renderWebGL(renderer, this.poBoxSprite, camera);
+    }
+
 
     //---------------------------------------------------------------------------------------------------------
     // Methods
